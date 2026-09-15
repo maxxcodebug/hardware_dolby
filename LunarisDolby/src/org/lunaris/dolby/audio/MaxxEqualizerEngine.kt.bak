@@ -1,0 +1,110 @@
+/*
+ * Copyright (C) 2024-2026 Lunaris AOSP
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+package org.lunaris.dolby.audio
+
+import android.media.audiofx.DynamicsProcessing
+import android.util.Log
+
+/**
+ * Standalone parametric EQ engine built on Android's generic
+ * DynamicsProcessing API. Independent of the vendor Dolby DAP effect
+ * (see DolbyAudioEffect) — both can run simultaneously.
+ */
+class MaxxEqualizerEngine(
+    sessionId: Int = 0,
+    private val bandCount: Int = 10
+) {
+    private var dp: DynamicsProcessing? = null
+    private var isReleased = false
+
+    // Band center frequencies (Hz) — 10-band ISO-ish spacing
+    val bandFrequencies: FloatArray = floatArrayOf(
+        31f, 62f, 125f, 250f, 500f, 1000f, 2000f, 4000f, 8000f, 16000f
+    ).let { if (it.size >= bandCount) it.copyOf(bandCount) else it }
+
+    private val bandGains = FloatArray(bandFrequencies.size) { 0f }
+    var preampDb: Float = 0f
+        private set
+
+    var enabled: Boolean = false
+        private set
+
+    fun init() {
+        if (dp != null || isReleased) return
+
+        val channelCount = 2
+        val config = DynamicsProcessing.Config.Builder(
+            DynamicsProcessing.VARIANT_FAVOR_FREQUENCY_RESOLUTION,
+            channelCount,
+            /* preEqInUse */ true,
+            /* preEqBandCount */ bandFrequencies.size,
+            /* mbcInUse */ false,
+            /* mbcBandCount */ 0,
+            /* postEqInUse */ false,
+            /* postEqBandCount */ 0,
+            /* limiterInUse */ false
+        ).build()
+
+        dp = try {
+            DynamicsProcessing(0, sessionId, config)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to create DynamicsProcessing on session $sessionId", e)
+            null
+        }
+
+        dp?.let { effect ->
+            for (channel in 0 until channelCount) {
+                val preEq = effect.getPreEqByChannelIndex(channel)
+                preEq.setEnabled(true)
+                for (band in bandFrequencies.indices) {
+                    val eqBand = DynamicsProcessing.EqBand(
+                        /* enabled */ true,
+                        /* cutoffFrequency */ bandFrequencies[band],
+                        /* gain */ bandGains[band]
+                    )
+                    effect.setPreEqBandByChannelIndex(channel, band, eqBand)
+                }
+                effect.setPreEqByChannelIndex(channel, preEq)
+            }
+            effect.setInputGainAllChannelsTo(preampDb)
+        }
+    }
+
+    fun setEnabled(value: Boolean) {
+        enabled = value
+        dp?.enabled = value
+    }
+
+    fun setBandGain(band: Int, gainDb: Float) {
+        if (band !in bandFrequencies.indices) return
+        val clamped = gainDb.coerceIn(-20f, 20f)
+        bandGains[band] = clamped
+        val effect = dp ?: return
+        val channelCount = 2
+        for (channel in 0 until channelCount) {
+            val eqBand = DynamicsProcessing.EqBand(true, bandFrequencies[band], clamped)
+            effect.setPreEqBandByChannelIndex(channel, band, eqBand)
+        }
+    }
+
+    fun getBandGain(band: Int): Float =
+        bandGains.getOrElse(band) { 0f }
+
+    fun setPreamp(gainDb: Float) {
+        preampDb = gainDb.coerceIn(-20f, 20f)
+        dp?.setInputGainAllChannelsTo(preampDb)
+    }
+
+    fun release() {
+        dp?.release()
+        dp = null
+        isReleased = true
+    }
+
+    companion object {
+        private const val TAG = "MaxxEqualizerEngine"
+    }
+}
