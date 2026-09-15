@@ -1,10 +1,33 @@
-# Lunaris Dolby For CMF PHONE 1
+# LunarisDolby
 
-Pinned from **CMF Phone 1 (Tetris)**.
+LunarisDolby is a modern Dolby audio experience for the **CMF Phone 1 (Nothing)**.
 
-All proprietary files are sourced from:
+## Features
 
-* Android 17
-* Variant: `Cp2a`
+- Dolby equalizer
+- Per-band fine tuning
+- AutoEQ headphone correction
+- Audio output picker
+- Spatial audio controls
+- Custom audio scenes
+- Scene presets
+- Automation controls
+- System-wide channel balance
+- Sleep timer
+- Volume controls
+- Material 3 Expressive UI
+- Liquid-glass inspired interface
+- Smooth motion and visual effects
 
-**Dolby has only been tested on `Tetris`.**
+## Device
+
+- **Device:** CMF Phone 1
+- **Codename:** Tetris
+- **Manufacturer:** Nothing
+- **Project:** LunarisDolby
+
+## Credits
+
+LunarisDolby and its contributors.
+
+Original Dolby/LunarisDolby contributors are credited in the project history.

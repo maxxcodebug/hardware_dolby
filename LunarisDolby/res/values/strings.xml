@@ -219,6 +219,12 @@
     <string name="audio_output_bluetooth">Bluetooth</string>
     <string name="audio_output_usb">USB audio</string>
     <string name="audio_output_unknown">Audio device</string>
+
+    <!-- Output picker -->
+    <string name="output_title">Audio output</string>
+    <string name="output_active">Active</string>
+    <string name="output_empty">No audio outputs found</string>
+    <string name="output_switch_failed">Couldn\'t switch audio output</string>
     <string name="volume">Volume</string>
 
     <!-- Scenes -->
@@ -267,6 +273,7 @@
     <!-- Quick Settings tiles -->
     <string name="tile_scene_title">Dolby Scene</string>
     <string name="tile_leveler_title">Volume Leveler</string>
+    <string name="tile_spatial_title">Spatial Audio</string>
 
     <!-- Spatial audio (framework Spatializer) -->
     <string name="spatial_title">Spatial audio</string>
@@ -276,6 +283,7 @@
     <string name="spatial_headtracking_summary">Follow head movement when a tracked device is connected</string>
     <string name="spatial_unsupported">Not available on this device or output</string>
     <string name="spatial_unavailable">Spatializer unavailable on current output</string>
+    <string name="spatial_change_failed">System rejected the spatial audio change</string>
 
     <!-- Per-device scenes -->
     <string name="device_scene_title">Per-device scenes</string>

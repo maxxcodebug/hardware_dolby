@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- Required to drive the framework Spatializer (setEnabled /
+         setHeadTrackerEnabled are gated by this in AudioService).
+         signature|privileged: granted via platform cert + privapp allowlist. -->
+    <uses-permission android:name="android.permission.MODIFY_DEFAULT_AUDIO_EFFECTS" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -114,6 +118,17 @@
             android:name=".tile.LevelerTileService"
             android:icon="@drawable/ic_dolby_qs"
             android:label="@string/tile_leveler_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.SpatialTileService"
+            android:icon="@drawable/ic_dolby_qs"
+            android:label="@string/tile_spatial_title"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>
