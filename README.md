@@ -24,6 +24,11 @@ Lunaris Dolby port and UI integration for **CMF Phone 1 (Tetris)**.
 * Telegram: https://t.me/AnshumanAhirwar
 * GitHub: https://github.com/maxxcodebug
 
+## Changelog
+ - Add MaxxEqualizer.
+ - Added Liquid glass effect.
+ - Added Volume Control
+   
 ## Getting Started
 
 For dolby media codecs to work add this line in your media codecs config (should be in vendor partition) and make sure your device supports c2 codecs. :-
