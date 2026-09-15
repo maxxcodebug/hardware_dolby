@@ -31,8 +31,11 @@ import org.lunaris.dolby.R
 import org.lunaris.dolby.data.PresetExportManager
 import org.lunaris.dolby.domain.models.EqualizerPreset
 import org.lunaris.dolby.domain.models.EqualizerUiState
+import org.lunaris.dolby.ui.components.ApplyDialogWindowBlur
 import org.lunaris.dolby.ui.components.BouncyListItem
 import org.lunaris.dolby.ui.components.BouncyPopIn
+import org.lunaris.dolby.ui.components.LunarisGlassTopBar
+import org.lunaris.dolby.ui.components.rememberTopBarScrollFraction
 import org.lunaris.dolby.ui.components.verticalBouncyEdge
 import org.lunaris.dolby.ui.components.ModernConfirmDialog
 import org.lunaris.dolby.ui.viewmodel.EqualizerViewModel
@@ -157,16 +160,20 @@ fun PresetImportExportScreen(
         }
     }
 
+    val ioListState = rememberLazyListState()
+    val ioScrollFraction = rememberTopBarScrollFraction(ioListState)
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
+            LunarisGlassTopBar(
+                scrollFraction = ioScrollFraction,
+                title = {
                     Text(
                         stringResource(R.string.import_export_presets),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -180,15 +187,12 @@ fun PresetImportExportScreen(
                 actions = {
                     IconButton(onClick = { showBatchExport = true }) {
                         Icon(
-                            Icons.Default.FileDownload, 
+                            Icons.Default.FileDownload,
                             contentDescription = "Batch export",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -197,7 +201,7 @@ fun PresetImportExportScreen(
             when (val state = uiState) {
                 is EqualizerUiState.Success -> {
                     LazyColumn(
-                        state = rememberLazyListState(),
+                        state = ioListState,
                         modifier = Modifier
                             .fillMaxSize()
                             .verticalBouncyEdge(),
@@ -205,7 +209,7 @@ fun PresetImportExportScreen(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         item(key = "import") {
-                            BouncyPopIn(delayMillis = 0) {
+                            BouncyPopIn(delayMillis = 0, key = "pio:import") {
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = MaterialTheme.shapes.extraLarge,
@@ -335,7 +339,7 @@ fun PresetImportExportScreen(
                             state.presets.filter { it.isUserDefined },
                             key = { _, preset -> preset.name + preset.bandMode.value }
                         ) { _, preset ->
-                            BouncyListItem {
+                            BouncyListItem(key = "pio:preset:" + preset.name + preset.bandMode.value) {
                                 PresetExportCard(
                                 preset = preset,
                                 onExportFile = {
@@ -436,6 +440,7 @@ fun PresetImportExportScreen(
         AlertDialog(
             onDismissRequest = { showBatchExport = false },
             icon = {
+                ApplyDialogWindowBlur()
                 Surface(
                     modifier = Modifier.size(56.dp),
                     shape = MaterialTheme.shapes.large,

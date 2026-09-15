@@ -66,17 +66,20 @@ fun ModernEqualizerScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showResetDialog by remember { mutableStateOf(false) }
     var viewMode by remember { mutableStateOf(EqualizerViewMode.CURVE) }
+    val eqScrollState = rememberScrollState()
+    val eqScrollFraction = rememberTopBarScrollFraction(eqScrollState)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
+            LunarisGlassTopBar(
+                scrollFraction = eqScrollFraction,
+                title = {
                     Text(
                         stringResource(R.string.dolby_preset),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
-                    ) 
+                    )
                 },
                 actions = {
                     IconButton(onClick = { showSaveDialog = true }) {
@@ -112,22 +115,20 @@ fun ModernEqualizerScreen(
                         if (state.currentPreset.isUserDefined) {
                             IconButton(onClick = { showDeleteDialog = true }) {
                                 Icon(
-                                    Icons.Default.Delete, 
+                                    Icons.Default.Delete,
                                     contentDescription = "Delete",
                                     tint = MaterialTheme.colorScheme.error
                                 )
                             }
                         }
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
+        FloatingParticles()
         when (val state = uiState) {
             is EqualizerUiState.Loading -> {
                 Box(
@@ -145,6 +146,7 @@ fun ModernEqualizerScreen(
                     viewModel = viewModel,
                     viewMode = viewMode,
                     onViewModeChange = { viewMode = it },
+                    scrollState = eqScrollState,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -232,10 +234,10 @@ private fun ModernEqualizerContent(
     viewModel: EqualizerViewModel,
     viewMode: EqualizerViewMode,
     onViewModeChange: (EqualizerViewMode) -> Unit,
+    scrollState: androidx.compose.foundation.ScrollState,
     modifier: Modifier = Modifier
 ) {
     val isFlatPreset = state.currentPreset.name == stringResource(R.string.dolby_preset_default)
-    val scrollState = rememberScrollState()
     val isBandModeCompatible = state.currentPreset.bandMode == state.bandMode
     val canEdit = isBandModeCompatible || isFlatPreset
     val isActive = canEdit && !isFlatPreset
@@ -248,7 +250,7 @@ private fun ModernEqualizerContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        BouncyPopIn(delayMillis = 0) {
+        BouncyPopIn(delayMillis = 0, key = "eq:presets") {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
@@ -264,14 +266,17 @@ private fun ModernEqualizerContent(
             }
         }
 
-        BouncyPopIn(delayMillis = 30) {
+        BouncyPopIn(delayMillis = 30, key = "eq:bandmode") {
             BandModeSelector(
                 currentMode = state.bandMode,
                 onModeChange = { viewModel.setBandMode(it) }
             )
         }
         
-        if (!isBandModeCompatible && !isFlatPreset) {
+        BouncyPopIn(
+            key = "eq:compat_warning",
+            visible = !isBandModeCompatible && !isFlatPreset
+        ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
@@ -311,7 +316,7 @@ private fun ModernEqualizerContent(
             }
         }
         
-        BouncyPopIn(delayMillis = 60) {
+        BouncyPopIn(delayMillis = 60, key = "eq:section") {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.extraLarge,
@@ -378,7 +383,7 @@ private fun ModernEqualizerContent(
             }
         }
 
-        BouncyPopIn(delayMillis = 90) {
+        BouncyPopIn(delayMillis = 90, key = "eq:tuner") {
             BandTunerCard(
                 bandGains = state.bandGains,
                 bandMode = state.bandMode,
@@ -1427,6 +1432,7 @@ private fun SavePresetDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
+            ApplyDialogWindowBlur()
             Surface(
                 modifier = Modifier.size(56.dp),
                 shape = MaterialTheme.shapes.large,
@@ -1549,6 +1555,7 @@ private fun AutoEqSelectionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
+            ApplyDialogWindowBlur()
             Text(
                 text = stringResource(id = R.string.dolby_autoeq_title),
                 style = MaterialTheme.typography.titleLarge,
@@ -1629,6 +1636,7 @@ private fun AutoEqSelectionDialog(
                         items(filteredList, key = { it.id }) { entry ->
                             val isSelected = entry.id == activeAutoEqId
 
+                            BouncyListItem(key = "autoeq:${entry.id}") {
                             Surface(
                                 onClick = {
                                     viewModel.applyAutoEqProfileNetwork(context, entry)
@@ -1666,6 +1674,7 @@ private fun AutoEqSelectionDialog(
                                         )
                                     }
                                 }
+                            }
                             }
                         }
                     }

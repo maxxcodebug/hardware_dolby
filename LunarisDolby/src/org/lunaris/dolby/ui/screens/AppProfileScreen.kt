@@ -33,7 +33,9 @@ import org.lunaris.dolby.R
 import org.lunaris.dolby.data.AppInfo
 import org.lunaris.dolby.domain.models.AppProfileUiState
 import org.lunaris.dolby.ui.components.BouncyListItem
+import org.lunaris.dolby.ui.components.LunarisGlassTopBar
 import org.lunaris.dolby.ui.components.ModernConfirmDialog
+import org.lunaris.dolby.ui.components.rememberTopBarScrollFraction
 import org.lunaris.dolby.ui.components.verticalBouncyEdge
 import org.lunaris.dolby.ui.viewmodel.AppProfileViewModel
 
@@ -46,17 +48,20 @@ fun AppProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     var showClearAllDialog by remember { mutableStateOf(false) }
+    val appListState = rememberLazyListState()
+    val appScrollFraction = rememberTopBarScrollFraction(appListState)
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
+            LunarisGlassTopBar(
+                scrollFraction = appScrollFraction,
+                title = {
                     Text(
                         stringResource(R.string.app_profiles_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
-                    ) 
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
@@ -82,15 +87,12 @@ fun AppProfileScreen(
                     }
                     IconButton(onClick = { viewModel.loadApps() }) {
                         Icon(
-                            Icons.Default.Refresh, 
+                            Icons.Default.Refresh,
                             contentDescription = "Refresh",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
@@ -204,7 +206,7 @@ fun AppProfileScreen(
                         }
                     } else {
                         LazyColumn(
-                            state = rememberLazyListState(),
+                            state = appListState,
                             modifier = Modifier
                                 .fillMaxSize()
                                 .verticalBouncyEdge(),
@@ -212,7 +214,7 @@ fun AppProfileScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             itemsIndexed(filteredApps, key = { _, app -> app.packageName }) { _, app ->
-                                BouncyListItem {
+                                BouncyListItem(key = "app:${app.packageName}") {
                                     AppProfileItem(
                                         app = app,
                                         onProfileSelected = { profile ->

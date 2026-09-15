@@ -40,7 +40,14 @@ fun ModernAdvancedSettingsScreen(
     val balanceError by viewModel.balanceError.collectAsState()
     val scenes by viewModel.scenes.collectAsState()
     val deviceScenes by viewModel.deviceScenes.collectAsState()
+    val spatialSupported by viewModel.spatializerSupported.collectAsState()
+    val spatialAvailable by viewModel.spatializerAvailable.collectAsState()
+    val spatialEnabled by viewModel.spatializerEnabled.collectAsState()
+    val headTrackingAvailable by viewModel.headTrackingAvailable.collectAsState()
+    val headTrackingEnabled by viewModel.headTrackingEnabled.collectAsState()
     val context = LocalContext.current
+    val advListState = rememberLazyListState()
+    val advScrollFraction = rememberTopBarScrollFraction(advListState)
 
     LaunchedEffect(balanceError) {
         balanceError?.let {
@@ -51,23 +58,22 @@ fun ModernAdvancedSettingsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { 
+            LunarisGlassTopBar(
+                scrollFraction = advScrollFraction,
+                title = {
                     Text(
                         stringResource(R.string.dolby_category_adv_settings),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
-                    ) 
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                    )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
+        FloatingParticles()
         when (val state = uiState) {
             is DolbyUiState.Loading -> {
                 Box(
@@ -84,10 +90,16 @@ fun ModernAdvancedSettingsScreen(
                     state = state,
                     viewModel = viewModel,
                     navController = navController,
+                    listState = advListState,
                     balance = balance,
                     onBalanceChange = { viewModel.setChannelBalance(it) },
                     scenes = scenes,
                     deviceScenes = deviceScenes,
+                    spatialSupported = spatialSupported,
+                    spatialAvailable = spatialAvailable,
+                    spatialEnabled = spatialEnabled,
+                    headTrackingAvailable = headTrackingAvailable,
+                    headTrackingEnabled = headTrackingEnabled,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -126,13 +138,18 @@ private fun ModernAdvancedSettingsContent(
     state: DolbyUiState.Success,
     viewModel: DolbyViewModel,
     navController: NavController,
+    listState: androidx.compose.foundation.lazy.LazyListState,
     balance: Float,
     onBalanceChange: (Float) -> Unit,
     scenes: List<org.lunaris.dolby.domain.models.Scene>,
     deviceScenes: Map<String, String>,
+    spatialSupported: Boolean,
+    spatialAvailable: Boolean,
+    spatialEnabled: Boolean,
+    headTrackingAvailable: Boolean,
+    headTrackingEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState()
     LazyColumn(
         state = listState,
         modifier = modifier
@@ -143,7 +160,7 @@ private fun ModernAdvancedSettingsContent(
     ) {
         if (state.settings.enabled) {
             item(key = "tuning") {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "adv:tuning") {
                     ModernSettingsCard(
                         title = stringResource(R.string.dolby_category_settings),
                         icon = Icons.Default.Tune
@@ -253,7 +270,7 @@ private fun ModernAdvancedSettingsContent(
             }
 
             item(key = "leveler") {
-                BouncyPopIn(delayMillis = 30) {
+                BouncyPopIn(delayMillis = 30, key = "adv:leveler") {
                     ModernSettingsCard(
                         title = "Volume Leveler",
                         icon = Icons.Default.VolumeDown
@@ -271,7 +288,7 @@ private fun ModernAdvancedSettingsContent(
             
             if (state.settings.currentProfile != 0) {
                 item(key = "virtualizer") {
-                    BouncyPopIn(delayMillis = 60) {
+                    BouncyPopIn(delayMillis = 60, key = "adv:virtualizer") {
                         ModernSettingsCard(
                             title = "Surround Virtualizer",
                             icon = Icons.Default.Headphones
@@ -311,7 +328,7 @@ private fun ModernAdvancedSettingsContent(
                 }
                 
                 item(key = "dialogue") {
-                    BouncyPopIn(delayMillis = 60) {
+                    BouncyPopIn(delayMillis = 60, key = "adv:dialogue") {
                         ModernSettingsCard(
                             title = "Dialogue Enhancement",
                             icon = Icons.Default.RecordVoiceOver
@@ -369,8 +386,22 @@ private fun ModernAdvancedSettingsContent(
             }
         }
         
+        item(key = "spatial") {
+            BouncyPopIn(delayMillis = 75, key = "adv:spatial") {
+                SpatialAudioCard(
+                    isSupported = spatialSupported,
+                    isAvailable = spatialAvailable,
+                    isEnabled = spatialEnabled,
+                    headTrackingAvailable = headTrackingAvailable,
+                    headTrackingEnabled = headTrackingEnabled,
+                    onEnabledChange = { viewModel.setSpatialAudioEnabled(it) },
+                    onHeadTrackingChange = { viewModel.setHeadTrackingEnabled(it) }
+                )
+            }
+        }
+
         item(key = "balance") {
-            BouncyPopIn(delayMillis = 90) {
+            BouncyPopIn(delayMillis = 90, key = "adv:balance") {
                 BalanceCard(
                     balance = balance,
                     onBalanceChange = onBalanceChange
@@ -379,13 +410,13 @@ private fun ModernAdvancedSettingsContent(
         }
 
         item(key = "automation") {
-            BouncyPopIn(delayMillis = 120) {
+            BouncyPopIn(delayMillis = 120, key = "adv:automation") {
                 AutomationCard()
             }
         }
 
         item(key = "device_scene") {
-            BouncyPopIn(delayMillis = 150) {
+            BouncyPopIn(delayMillis = 150, key = "adv:device_scene") {
                 val deviceKey = remember(state.activeAudioDevice) {
                     viewModel.currentDeviceKey()
                 }

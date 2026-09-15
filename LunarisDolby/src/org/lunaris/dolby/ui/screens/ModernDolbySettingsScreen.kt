@@ -47,10 +47,13 @@ fun ModernDolbySettingsScreen(
     var sceneName by remember { mutableStateOf("") }
     var sceneToDelete by remember { mutableStateOf<Scene?>(null) }
     val context = LocalContext.current
+    val homeListState = rememberLazyListState()
+    val homeScrollFraction = rememberTopBarScrollFraction(homeListState)
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            LunarisGlassTopBar(
+                scrollFraction = homeScrollFraction,
                 title = {
                     Column {
                         Text(
@@ -70,28 +73,26 @@ fun ModernDolbySettingsScreen(
                 actions = {
                     IconButton(onClick = { showCreditsDialog = true }) {
                         Icon(
-                            Icons.Default.Info, 
+                            Icons.Default.Info,
                             contentDescription = "Credits",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                     IconButton(onClick = { showResetDialog = true }) {
                         Icon(
-                            Icons.Default.RestartAlt, 
+                            Icons.Default.RestartAlt,
                             contentDescription = "Reset",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize()) {
+        FloatingParticles()
         when (val state = uiState) {
             is DolbyUiState.Loading -> {
                 Box(
@@ -118,6 +119,7 @@ fun ModernDolbySettingsScreen(
                     state = state,
                     viewModel = viewModel,
                     navController = navController,
+                    listState = homeListState,
                     scenes = scenes,
                     sleepState = sleepState,
                     onApplyScene = { scene ->
@@ -225,6 +227,7 @@ private fun ModernDolbySettingsContent(
     state: DolbyUiState.Success,
     viewModel: DolbyViewModel,
     navController: NavController,
+    listState: androidx.compose.foundation.lazy.LazyListState,
     scenes: List<Scene>,
     sleepState: SleepTimerState,
     onApplyScene: (Scene) -> Unit,
@@ -233,7 +236,6 @@ private fun ModernDolbySettingsContent(
     onResetScenesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState()
     LazyColumn(
         state = listState,
         modifier = modifier
@@ -243,7 +245,7 @@ private fun ModernDolbySettingsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item(key = "main_card") {
-            BouncyPopIn(delayMillis = 0) {
+            BouncyPopIn(delayMillis = 0, key = "home:main_card") {
                 DolbyMainCard(
                     enabled = state.settings.enabled,
                     onEnabledChange = { viewModel.setDolbyEnabled(it) }
@@ -252,13 +254,13 @@ private fun ModernDolbySettingsContent(
         }
 
         item(key = "device_card") {
-            BouncyPopIn(delayMillis = 30) {
+            BouncyPopIn(delayMillis = 30, key = "home:device_card") {
                 ActiveAudioDeviceCard(device = state.activeAudioDevice)
             }
         }
 
         item(key = "notif_card") {
-            BouncyPopIn(delayMillis = 60) {
+            BouncyPopIn(delayMillis = 60, key = "home:notif_card") {
                 NotificationListenerPermissionCard()
             }
         }
@@ -271,7 +273,7 @@ private fun ModernDolbySettingsContent(
                 ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "home:profile") {
                     ModernProfileSelector(
                         currentProfile = state.settings.currentProfile,
                         onProfileChange = { viewModel.setProfile(it) }
@@ -288,7 +290,7 @@ private fun ModernDolbySettingsContent(
                 ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "home:ieq") {
                     ModernSettingsCard(
                         title = stringResource(R.string.dolby_ieq),
                         icon = Icons.Default.GraphicEq
@@ -310,7 +312,7 @@ private fun ModernDolbySettingsContent(
                 ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "home:scenes") {
                     SceneSection(
                         scenes = scenes,
                         onApply = onApplyScene,
@@ -331,7 +333,7 @@ private fun ModernDolbySettingsContent(
                 ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "home:sleep") {
                     SleepTimerCard(
                         state = sleepState,
                         onStart = { viewModel.startSleepTimer(it) },
@@ -349,7 +351,7 @@ private fun ModernDolbySettingsContent(
                 ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                BouncyPopIn(delayMillis = 0) {
+                BouncyPopIn(delayMillis = 0, key = "home:app_profiles") {
                     AppProfileSettingsCard(
                         onManageClick = { navController.navigate("app_profiles") }
                     )

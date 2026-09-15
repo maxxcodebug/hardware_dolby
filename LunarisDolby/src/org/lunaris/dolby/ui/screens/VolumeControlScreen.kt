@@ -28,7 +28,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.lunaris.dolby.R
 import org.lunaris.dolby.ui.components.BouncyListItem
+import org.lunaris.dolby.ui.components.FloatingParticles
 import org.lunaris.dolby.ui.components.verticalBouncyEdge
+import org.lunaris.dolby.ui.components.LunarisGlassTopBar
 import org.lunaris.dolby.ui.components.ModernSettingSlider
 import org.lunaris.dolby.ui.components.ModernSettingsCard
 
@@ -123,9 +125,13 @@ fun VolumeControlScreen() {
         }
     }
 
+    val volListState = rememberLazyListState()
+    val volScrollFraction = org.lunaris.dolby.ui.components.rememberTopBarScrollFraction(volListState)
+
     Scaffold(
         topBar = {
-            TopAppBar(
+            LunarisGlassTopBar(
+                scrollFraction = volScrollFraction,
                 title = {
                     Text(
                         stringResource(R.string.volume),
@@ -133,16 +139,15 @@ fun VolumeControlScreen() {
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                }
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
+        FloatingParticles()
         LazyColumn(
-            state = rememberLazyListState(),
+            state = volListState,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
@@ -154,7 +159,7 @@ fun VolumeControlScreen() {
                 items = streams,
                 key = { _, stream -> stream.streamType }
             ) { _, stream ->
-                BouncyListItem {
+                BouncyListItem(key = "vol:${stream.streamType}") {
                     val max = remember(stream.streamType) {
                     try {
                         audioManager.getStreamMaxVolume(stream.streamType)
@@ -217,6 +222,7 @@ fun VolumeControlScreen() {
             item {
                 Spacer(modifier = Modifier.height(70.dp))
             }
+        }
         }
     }
 }
