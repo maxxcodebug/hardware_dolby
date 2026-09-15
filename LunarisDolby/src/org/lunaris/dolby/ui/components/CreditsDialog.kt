@@ -43,9 +43,21 @@ fun CreditsDialog(
 ) {
     val context = LocalContext.current
     
-    val repoUrl = "https://github.com/crdroidandroid/android_packages_apps_LunarisDolby"
+    val repoUrl = "https://github.com/samakshkambxj/hardware_dolby"
     
     val mainContributors = listOf(
+        Contributor(
+            name = "Samakshhhh",
+            githubUsername = "samakshkambxj",
+            contribution = "Port Lunaris Dolby for Nothing Phone (3a) Lite",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "Anshuman_X",
+            githubUsername = "maxxcodebug",
+            contribution = "Make this Lunaris Dolby port possible for CMF PHONE 1 (Tetris)",
+            isHighlighted = true
+        ),
         Contributor(
             name = "Ghost",
             githubUsername = "Ghosuto",
@@ -68,6 +80,12 @@ fun CreditsDialog(
             name = "tranQuila",
             githubUsername = "MrTopia",
             contribution = "Adding per-device dolby state memory",
+            isHighlighted = true
+        ),
+        Contributor(
+            name = "Pablo Escobar",
+            githubUsername = "pabloescobar-reborn",
+            contribution = "AutoEQ headphone correction profiles",
             isHighlighted = true
         )
     )
