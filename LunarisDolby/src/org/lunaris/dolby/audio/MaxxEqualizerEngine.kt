@@ -27,7 +27,7 @@ data class MbcBandParams(
 )
 
 class MaxxEqualizerEngine(
-    sessionId: Int = 0,
+    private val sessionId: Int = 0,
     private val bandCount: Int = 10
 ) {
     private var dp: DynamicsProcessing? = null
@@ -121,6 +121,7 @@ class MaxxEqualizerEngine(
     private fun applyLimiterToEffect(effect: DynamicsProcessing, channel: Int) {
         val limiter = DynamicsProcessing.Limiter(
             /* enabled */ limiterEnabled,
+            /* linked */ false,
             /* linkGroup */ 0,
             /* attackTime */ 1f,
             /* releaseTime */ limiterReleaseMs,

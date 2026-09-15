@@ -184,6 +184,7 @@ fun FloatingNavToolbar(
         }
     }
 }
+    }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
