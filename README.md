@@ -1,33 +1,78 @@
-# LunarisDolby
 
-LunarisDolby is a modern Dolby audio experience for the **CMF Phone 1 (Nothing)**.
+# Lunaris Dolby For CMF Phone 1
 
-## Features
+Lunaris Dolby port and UI integration for **CMF Phone 1 (Tetris)**.
 
-- Dolby equalizer
-- Per-band fine tuning
-- AutoEQ headphone correction
-- Audio output picker
-- Spatial audio controls
-- Custom audio scenes
-- Scene presets
-- Automation controls
-- System-wide channel balance
-- Sleep timer
-- Volume controls
-- Material 3 Expressive UI
-- Liquid-glass inspired interface
-- Smooth motion and visual effects
-
-## Device
-
-- **Device:** CMF Phone 1
-- **Codename:** Tetris
-- **Manufacturer:** Nothing
-- **Project:** LunarisDolby
+> **Device:** CMF Phone 1
+> **Codename:** `Tetris`
 
 ## Credits
 
-LunarisDolby and its contributors.
+* **Anshuman X** ([maxxcodebug](https://github.com/maxxcodebug)) — Lunaris Dolby port for CMF Phone 1 (Tetris), including **volume controls and volume control UI**. Parts of this work were also used as a base/reference for further Lunaris Dolby development.
+* **Samakshhhh** ([samakshkambxj](https://github.com/samakshkambxj)) — Original Lunaris Dolby port for Nothing Phone (3a) Lite (Galaxian). **Used and built upon Anshuman X's Dolby work**, while contributing the **new animations, visual effects, spatial audio UI, scenes, automation, and other new UI enhancements**.
+* **Ghost** ([Ghosuto](https://github.com/Ghosuto)) — Rewrite Dolby in Compose (Lunaris Dolby).
+* **Adithya R** ([adithya2306](https://github.com/adithya2306)) — AOSPA Dolby Manager (Initial Code).
+* **Kenway** ([kenway214](https://github.com/kenway214)) — Base & Treble Changes, EQ Tuning.
+* **tranQuila** ([MrTopia](https://github.com/MrTopia)) — Per-device Dolby state memory.
+* **Pablo Escobar** ([pabloescobar-reborn](https://github.com/pabloescobar-reborn)) — AutoEQ headphone correction profiles.
+* **swiitch-OFF-Lab** ([swiitch-OFF-Lab](https://github.com/swiitch-OFF-Lab)) — Base Dolby tree ([hardware_dolby](https://github.com/swiitch-OFF-Lab/hardware_dolby)).
 
-Original Dolby/LunarisDolby contributors are credited in the project history.
+## Maintainer
+
+**Anshuman X**
+
+* Telegram: https://t.me/AnshumanAhirwar
+* GitHub: https://github.com/maxxcodebug
+
+## Getting Started
+
+For dolby media codecs to work add this line in your media codecs config (should be in vendor partition) and make sure your device supports c2 codecs. :-
+
+```bash
+<Include href="media_codecs_dolby_audio.xml" />
+```
+
+To build, add the dolby effects in your device's audio effects config then inherit the dolby config by adding this in your device's makefile :-
+
+```bash
+$(call inherit-product, hardware/dolby/dolby.mk)
+```
+
+Now, moving hidl definitions in manifest to device trees is completely absurd so stop overriding manifest in your device trees an example for such would be :-
+
+Changing these in BoardConfig makefile of your device tree:-
+
+```bash
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE :=
+```
+And
+
+```bash
+DEVICE_MANIFEST_FILE :=
+```
+
+To:-
+
+```bash
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE +=
+```
+And
+
+```bash
+DEVICE_MANIFEST_FILE +=
+```
+
+The only change done above is changing := symbol to += so that manifest can't be overriden from device tree in BoardConfig makefile.
+
+At the end an example commit to properly implement it in your device tree could be :-
+
+* [Galaxian: Integrate Dolby Atmos](https://github.com/samakshkambxj/device_nothing_Galaxian/commit/137e6cec853a2c17be4b1c591504363e9dbc6b77)
+* [Galaxian: Dolby: Enable Lunaris Dolby UI Package](https://github.com/samakshkambxj/device_nothing_Galaxian/commit/fb6b53fda1f0a1e458f605e6df8be68e86385174)
+
+## Device Support
+
+Currently maintained and integrated for:
+
+**CMF Phone 1 (`Tetris`)**
+
+Additional device-specific configuration may be required for other devices.
