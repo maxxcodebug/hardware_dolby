@@ -33,6 +33,9 @@ object DolbyConstants {
     const val PREF_DEVICE_STATE_MEMORY = "device_state_memory_enabled"
     
     const val PREF_FILE_PRESETS = "presets"
+    const val PREF_FILE_SCENES = "dolby_scenes"
+    const val PREF_SLEEP_TIMER_DEADLINE = "sleep_timer_deadline"
+    const val PREF_BALANCE = "dolby_balance"
 
     enum class DsParam(val id: Int, val length: Int = 1) {
         HEADPHONE_VIRTUALIZER(101),

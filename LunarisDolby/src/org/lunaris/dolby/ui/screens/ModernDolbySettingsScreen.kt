@@ -17,14 +17,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.lunaris.dolby.R
+import org.lunaris.dolby.data.SleepTimerState
 import org.lunaris.dolby.domain.models.DolbyUiState
+import org.lunaris.dolby.domain.models.Scene
 import org.lunaris.dolby.ui.components.*
 import org.lunaris.dolby.ui.viewmodel.DolbyViewModel
+import org.lunaris.dolby.utils.ToastHelper
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -33,8 +37,15 @@ fun ModernDolbySettingsScreen(
     navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scenes by viewModel.scenes.collectAsState()
+    val sleepState by viewModel.sleepState.collectAsState()
     var showResetDialog by remember { mutableStateOf(false) }
     var showCreditsDialog by remember { mutableStateOf(false) }
+    var showSaveSceneDialog by remember { mutableStateOf(false) }
+    var showResetScenesDialog by remember { mutableStateOf(false) }
+    var sceneName by remember { mutableStateOf("") }
+    var sceneToDelete by remember { mutableStateOf<Scene?>(null) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -106,6 +117,18 @@ fun ModernDolbySettingsScreen(
                     state = state,
                     viewModel = viewModel,
                     navController = navController,
+                    scenes = scenes,
+                    sleepState = sleepState,
+                    onApplyScene = { scene ->
+                        viewModel.applyScene(scene)
+                        ToastHelper.showToast(context, context.getString(R.string.scene_applied))
+                    },
+                    onSaveSceneClick = {
+                        sceneName = ""
+                        showSaveSceneDialog = true
+                    },
+                    onDeleteSceneClick = { sceneToDelete = it },
+                    onResetScenesClick = { showResetScenesDialog = true },
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -156,6 +179,44 @@ fun ModernDolbySettingsScreen(
             onDismiss = { showCreditsDialog = false }
         )
     }
+
+    if (showSaveSceneDialog) {
+        SaveSceneDialog(
+            name = sceneName,
+            onNameChange = { sceneName = it },
+            onConfirm = {
+                viewModel.saveScene(sceneName)
+                showSaveSceneDialog = false
+            },
+            onDismiss = { showSaveSceneDialog = false }
+        )
+    }
+
+    sceneToDelete?.let { scene ->
+        ModernConfirmDialog(
+            title = stringResource(R.string.scene_delete_title),
+            message = stringResource(R.string.scene_delete_message, scene.name),
+            icon = Icons.Default.Delete,
+            onConfirm = {
+                viewModel.deleteScene(scene.id)
+                sceneToDelete = null
+            },
+            onDismiss = { sceneToDelete = null }
+        )
+    }
+
+    if (showResetScenesDialog) {
+        ModernConfirmDialog(
+            title = stringResource(R.string.scene_reset_title),
+            message = stringResource(R.string.scene_reset_message),
+            icon = Icons.Default.RestartAlt,
+            onConfirm = {
+                viewModel.resetScenes()
+                showResetScenesDialog = false
+            },
+            onDismiss = { showResetScenesDialog = false }
+        )
+    }
 }
 
 @Composable
@@ -163,6 +224,12 @@ private fun ModernDolbySettingsContent(
     state: DolbyUiState.Success,
     viewModel: DolbyViewModel,
     navController: NavController,
+    scenes: List<Scene>,
+    sleepState: SleepTimerState,
+    onApplyScene: (Scene) -> Unit,
+    onSaveSceneClick: () -> Unit,
+    onDeleteSceneClick: (Scene) -> Unit,
+    onResetScenesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -213,6 +280,37 @@ private fun ModernDolbySettingsContent(
                         onPresetChange = { viewModel.setIeqPreset(it) }
                     )
                 }
+            }
+        }
+
+        item {
+            AnimatedVisibility(
+                visible = state.settings.enabled,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                SceneSection(
+                    scenes = scenes,
+                    onApply = onApplyScene,
+                    onSaveClick = onSaveSceneClick,
+                    onDeleteClick = onDeleteSceneClick,
+                    onResetClick = onResetScenesClick,
+                    hasCustomScenes = scenes.any { !it.isBuiltIn }
+                )
+            }
+        }
+
+        item {
+            AnimatedVisibility(
+                visible = state.settings.enabled,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                SleepTimerCard(
+                    state = sleepState,
+                    onStart = { viewModel.startSleepTimer(it) },
+                    onCancel = { viewModel.cancelSleepTimer() }
+                )
             }
         }
 

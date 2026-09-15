@@ -14,6 +14,8 @@
     <uses-permission android:name="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -31,6 +33,25 @@
             <intent-filter android:priority="1000">
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".service.SleepTimerReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="org.lunaris.dolby.ACTION_SLEEP_TIMER" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".service.DolbyCommandReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="org.lunaris.dolby.action.TOGGLE" />
+                <action android:name="org.lunaris.dolby.action.SET_ENABLED" />
+                <action android:name="org.lunaris.dolby.action.SET_PROFILE" />
+                <action android:name="org.lunaris.dolby.action.APPLY_SCENE" />
             </intent-filter>
         </receiver>
 
@@ -71,6 +92,28 @@
             android:name=".tile.DolbyTileService"
             android:icon="@drawable/ic_dolby_qs"
             android:label="@string/dolby_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.SceneCycleTileService"
+            android:icon="@drawable/ic_dolby_qs"
+            android:label="@string/tile_scene_title"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".tile.LevelerTileService"
+            android:icon="@drawable/ic_dolby_qs"
+            android:label="@string/tile_leveler_title"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>

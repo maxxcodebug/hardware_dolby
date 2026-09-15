@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,6 +26,7 @@ import org.lunaris.dolby.R
 import org.lunaris.dolby.domain.models.DolbyUiState
 import org.lunaris.dolby.ui.components.*
 import org.lunaris.dolby.ui.viewmodel.DolbyViewModel
+import org.lunaris.dolby.utils.ToastHelper
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -33,6 +35,18 @@ fun ModernAdvancedSettingsScreen(
     navController: NavController
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val balance by viewModel.channelBalance.collectAsState()
+    val balanceError by viewModel.balanceError.collectAsState()
+    val scenes by viewModel.scenes.collectAsState()
+    val deviceScenes by viewModel.deviceScenes.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(balanceError) {
+        balanceError?.let {
+            ToastHelper.showToast(context, it)
+            viewModel.clearBalanceError()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -69,6 +83,10 @@ fun ModernAdvancedSettingsScreen(
                     state = state,
                     viewModel = viewModel,
                     navController = navController,
+                    balance = balance,
+                    onBalanceChange = { viewModel.setChannelBalance(it) },
+                    scenes = scenes,
+                    deviceScenes = deviceScenes,
                     modifier = Modifier.padding(paddingValues)
                 )
             }
@@ -107,6 +125,10 @@ private fun ModernAdvancedSettingsContent(
     state: DolbyUiState.Success,
     viewModel: DolbyViewModel,
     navController: NavController,
+    balance: Float,
+    onBalanceChange: (Float) -> Unit,
+    scenes: List<org.lunaris.dolby.domain.models.Scene>,
+    deviceScenes: Map<String, String>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -334,6 +356,31 @@ private fun ModernAdvancedSettingsContent(
             }
         }
         
+        item {
+            BalanceCard(
+                balance = balance,
+                onBalanceChange = onBalanceChange
+            )
+        }
+
+        item {
+            AutomationCard()
+        }
+
+        item {
+            val deviceKey = remember(state.activeAudioDevice) {
+                viewModel.currentDeviceKey()
+            }
+            DeviceSceneCard(
+                currentDeviceName = state.activeAudioDevice.name,
+                currentDeviceKey = deviceKey,
+                scenes = scenes,
+                deviceScenes = deviceScenes,
+                onAssign = { viewModel.assignDeviceScene(it) },
+                onClear = { viewModel.clearDeviceScene(it) }
+            )
+        }
+
         item {
             Spacer(modifier = Modifier.height(70.dp))
         }

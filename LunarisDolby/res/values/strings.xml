@@ -220,4 +220,61 @@
     <string name="audio_output_usb">USB audio</string>
     <string name="audio_output_unknown">Audio device</string>
     <string name="volume">Volume</string>
+
+    <!-- Scenes -->
+    <string name="scenes">Scenes</string>
+    <string name="scene_save_current">Save current</string>
+    <string name="scene_save_title">Save scene</string>
+    <string name="scene_name_hint">Scene name</string>
+    <string name="scene_delete_title">Delete scene?</string>
+    <string name="scene_delete_message">Delete "%1$s"?</string>
+    <string name="scene_applied">Scene applied</string>
+    <string name="scene_builtin_movie">Movie Night</string>
+    <string name="scene_builtin_bass">Bass Boost</string>
+    <string name="scene_builtin_podcast">Podcast</string>
+    <string name="scene_builtin_gaming">Gaming</string>
+    <string name="scene_builtin_music">Music Session</string>
+    <string name="scene_builtin_night">Late Night</string>
+    <string name="scene_builtin_vocal">Voice Clarity</string>
+    <string name="scene_builtin_outdoor">Outdoor Speaker</string>
+    <string name="scene_reset">Reset scenes</string>
+    <string name="scene_reset_title">Reset scenes?</string>
+    <string name="scene_reset_message">Delete all custom scenes? Built-in scenes will be kept.</string>
+    <string name="save">Save</string>
+
+    <!-- Sleep timer -->
+    <string name="sleep_timer">Sleep timer</string>
+    <string name="sleep_timer_off">Off</string>
+    <string name="sleep_timer_minutes">%1$d min</string>
+    <string name="sleep_timer_remaining">Turns off in %1$d min</string>
+    <string name="sleep_timer_ended">Sleep timer ended — Dolby off</string>
+
+    <!-- Channel balance -->
+    <string name="balance">Channel balance</string>
+    <string name="balance_summary">Adjust left/right output balance</string>
+    <string name="balance_center">Center</string>
+    <string name="balance_unsupported">Balance control not supported on this device</string>
+
+    <!-- Automation -->
+    <string name="automation">Automation</string>
+    <string name="automation_summary">Control Dolby from Tasker, MacroDroid or scripts via broadcast</string>
+    <string name="automation_copied">Copied to clipboard</string>
+    <string name="automation_hint_toggle">No extras — flips the master switch</string>
+    <string name="automation_hint_enabled">Boolean extra "enabled"</string>
+    <string name="automation_hint_profile">Int extra "profile" (0–6)</string>
+    <string name="automation_hint_scene">String extra "scene_id"</string>
+
+    <!-- Quick Settings tiles -->
+    <string name="tile_scene_title">Dolby Scene</string>
+    <string name="tile_leveler_title">Volume Leveler</string>
+
+    <!-- Per-device scenes -->
+    <string name="device_scene_title">Per-device scenes</string>
+    <string name="device_scene_summary">Auto-apply a scene when an audio device connects</string>
+    <string name="device_scene_current_device">Current device: %1$s</string>
+    <string name="device_scene_choose">Choose scene</string>
+    <string name="device_scene_none">No scene</string>
+    <string name="device_scene_assign">Assign to this device</string>
+    <string name="device_scene_clear">Clear</string>
+    <string name="device_scene_assigned">%1$s → %2$s</string>
 </resources>
