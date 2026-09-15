@@ -90,6 +90,7 @@ private fun SceneRow(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.large)
+            .squishable(enabled = true, scaleDown = 0.96f)
             .clickable(onClick = onApply),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh

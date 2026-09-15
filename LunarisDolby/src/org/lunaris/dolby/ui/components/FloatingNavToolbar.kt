@@ -7,7 +7,10 @@ package org.lunaris.dolby.ui.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -15,7 +18,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -41,8 +46,28 @@ fun FloatingNavToolbar(
     val isVolumeSelected = currentRoute == "volume"
     val isEqualizerSelected = currentRoute == "equalizer"
     val isAdvancedSelected = currentRoute == "advanced"
-    
-    val containerColor = MaterialTheme.colorScheme.primaryContainer
+
+    // Liquid-glass pill: frosted translucent container, specular gradient
+    // edge (bright top-left, tinted bottom-right) and a primary-tinted glow.
+    // Note: Compose can't live-blur the list behind this bar within the same
+    // window (RenderEffect blurs a composable's own pixels, not its backdrop),
+    // so the frosted depth comes from translucency + sheen + glow instead.
+    val glassContainer = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+    val glassEdge = Brush.linearGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.75f),
+            Color.White.copy(alpha = 0.12f),
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+        )
+    )
+    val glassSheen = Brush.verticalGradient(
+        colors = listOf(
+            Color.White.copy(alpha = 0.22f),
+            Color.White.copy(alpha = 0.04f),
+            Color.Transparent,
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        )
+    )
     val onContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
     val primaryColor = MaterialTheme.colorScheme.primary
     val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
@@ -54,7 +79,7 @@ fun FloatingNavToolbar(
         HorizontalFloatingToolbar(
             expanded = true,
             colors = FloatingToolbarDefaults.vibrantFloatingToolbarColors(
-                toolbarContainerColor = containerColor,
+                toolbarContainerColor = glassContainer,
                 toolbarContentColor = onContainerColor
             ),
             modifier = Modifier
@@ -63,11 +88,21 @@ fun FloatingNavToolbar(
                     bottom = FloatingToolbarDefaults.ScreenOffset
                 )
                 .shadow(
-                    elevation = 16.dp,
-                    shape = MaterialTheme.shapes.extraLarge,
-                    ambientColor = Color.Black.copy(alpha = 0.4f),
-                    spotColor = Color.Black.copy(alpha = 0.5f)
+                    elevation = 18.dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black.copy(alpha = 0.22f),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.38f)
                 )
+                .background(
+                    brush = glassSheen,
+                    shape = CircleShape
+                )
+                .border(
+                    width = 1.25.dp,
+                    brush = glassEdge,
+                    shape = CircleShape
+                )
+                .padding(horizontal = 6.dp, vertical = 6.dp)
         ) {
             NavToolbarItem(
                 icon = Icons.Default.Home,
@@ -75,7 +110,7 @@ fun FloatingNavToolbar(
                 selected = isHomeSelected,
                 primaryColor = primaryColor,
                 onPrimaryColor = onPrimaryColor,
-                containerColor = containerColor,
+                containerColor = Color.Transparent,
                 onContainerColor = onContainerColor,
                 onClick = {
                     scope.launch {
@@ -84,7 +119,7 @@ fun FloatingNavToolbar(
                     onNavigate("settings")
                 }
             )
-            
+
             NavToolbarItem(
                 icon = Icons.Default.GraphicEq,
                 label = stringResource(R.string.equalizer),
@@ -92,7 +127,7 @@ fun FloatingNavToolbar(
                 isEqualizer = true,
                 primaryColor = primaryColor,
                 onPrimaryColor = onPrimaryColor,
-                containerColor = containerColor,
+                containerColor = Color.Transparent,
                 onContainerColor = onContainerColor,
                 onClick = {
                     scope.launch {
@@ -101,14 +136,14 @@ fun FloatingNavToolbar(
                     onNavigate("equalizer")
                 }
             )
-            
+
             NavToolbarItem(
                 icon = Icons.Default.Settings,
                 label = stringResource(R.string.advanced),
                 selected = isAdvancedSelected,
                 primaryColor = primaryColor,
                 onPrimaryColor = onPrimaryColor,
-                containerColor = containerColor,
+                containerColor = Color.Transparent,
                 onContainerColor = onContainerColor,
                 onClick = {
                     scope.launch {
@@ -124,7 +159,7 @@ fun FloatingNavToolbar(
                 selected = isVolumeSelected,
                 primaryColor = primaryColor,
                 onPrimaryColor = onPrimaryColor,
-                containerColor = containerColor,
+                containerColor = Color.Transparent,
                 onContainerColor = onContainerColor,
                 onClick = {
                     scope.launch {
@@ -154,6 +189,7 @@ private fun NavToolbarItem(
     isEqualizer: Boolean = false
 ) {
     val currentSelectionKey = remember(selected) { selected }
+    val iconBounce = rememberBouncySelectedScale(selected)
     
     ToggleButton(
         checked = selected,
@@ -185,7 +221,11 @@ private fun NavToolbarItem(
                 ) { isEq ->
                     if (isEq) {
                         AnimatedEqualizerIconDynamic(
-                            modifier = if (selected) Modifier else Modifier.semantics {
+                            modifier = if (selected) Modifier
+                                .graphicsLayer {
+                                    scaleX = iconBounce
+                                    scaleY = iconBounce
+                                } else Modifier.semantics {
                                 contentDescription = label
                             },
                             color = if (selected) onPrimaryColor else onContainerColor,
@@ -195,7 +235,12 @@ private fun NavToolbarItem(
                         Icon(
                             imageVector = icon,
                             contentDescription = label,
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier
+                                .size(24.dp)
+                                .graphicsLayer {
+                                    scaleX = iconBounce
+                                    scaleY = iconBounce
+                                }
                         )
                     }
                 }

@@ -43,6 +43,7 @@ fun SleepTimerCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .horizontalBouncyEdge()
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {

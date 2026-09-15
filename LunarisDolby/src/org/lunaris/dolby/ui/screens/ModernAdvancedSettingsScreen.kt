@@ -6,6 +6,7 @@
 package org.lunaris.dolby.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -131,17 +132,22 @@ private fun ModernAdvancedSettingsContent(
     deviceScenes: Map<String, String>,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        state = listState,
+        modifier = modifier
+            .fillMaxSize()
+            .verticalBouncyEdge(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         if (state.settings.enabled) {
-            item {
-                ModernSettingsCard(
-                    title = stringResource(R.string.dolby_category_settings),
-                    icon = Icons.Default.Tune
-                ) {
+            item(key = "tuning") {
+                BouncyPopIn(delayMillis = 0) {
+                    ModernSettingsCard(
+                        title = stringResource(R.string.dolby_category_settings),
+                        icon = Icons.Default.Tune
+                    ) {
                     Column {
                         ModernSettingSwitch(
                             title = stringResource(R.string.dolby_bass_enhancer),
@@ -244,28 +250,32 @@ private fun ModernAdvancedSettingsContent(
                     }
                 }
             }
-            
-            item {
-                ModernSettingsCard(
-                    title = "Volume Leveler",
-                    icon = Icons.Default.VolumeDown
-                ) {
-                    ModernSettingSwitch(
-                        title = stringResource(R.string.dolby_volume_leveler),
-                        subtitle = stringResource(R.string.dolby_volume_leveler_summary),
-                        checked = state.settings.volumeLevelerEnabled,
-                        onCheckedChange = { viewModel.setVolumeLeveler(it) },
-                        icon = Icons.Default.BarChart
-                    )
+            }
+
+            item(key = "leveler") {
+                BouncyPopIn(delayMillis = 30) {
+                    ModernSettingsCard(
+                        title = "Volume Leveler",
+                        icon = Icons.Default.VolumeDown
+                    ) {
+                        ModernSettingSwitch(
+                            title = stringResource(R.string.dolby_volume_leveler),
+                            subtitle = stringResource(R.string.dolby_volume_leveler_summary),
+                            checked = state.settings.volumeLevelerEnabled,
+                            onCheckedChange = { viewModel.setVolumeLeveler(it) },
+                            icon = Icons.Default.BarChart
+                        )
+                    }
                 }
             }
             
             if (state.settings.currentProfile != 0) {
-                item {
-                    ModernSettingsCard(
-                        title = "Surround Virtualizer",
-                        icon = Icons.Default.Headphones
-                    ) {
+                item(key = "virtualizer") {
+                    BouncyPopIn(delayMillis = 60) {
+                        ModernSettingsCard(
+                            title = "Surround Virtualizer",
+                            icon = Icons.Default.Headphones
+                        ) {
                         if (state.isOnSpeaker) {
                             ModernSettingSwitch(
                                 title = stringResource(R.string.dolby_spk_virtualizer),
@@ -297,13 +307,15 @@ private fun ModernAdvancedSettingsContent(
                             }
                         }
                     }
+                    }
                 }
                 
-                item {
-                    ModernSettingsCard(
-                        title = "Dialogue Enhancement",
-                        icon = Icons.Default.RecordVoiceOver
-                    ) {
+                item(key = "dialogue") {
+                    BouncyPopIn(delayMillis = 60) {
+                        ModernSettingsCard(
+                            title = "Dialogue Enhancement",
+                            icon = Icons.Default.RecordVoiceOver
+                        ) {
                         ModernSettingSwitch(
                             title = stringResource(R.string.dolby_dialogue_enhancer),
                             subtitle = stringResource(R.string.dolby_dialogue_enhancer_summary),
@@ -326,6 +338,7 @@ private fun ModernAdvancedSettingsContent(
                         }
                     }
                 }
+            }
             }
         } else {
             item {
@@ -356,29 +369,35 @@ private fun ModernAdvancedSettingsContent(
             }
         }
         
-        item {
-            BalanceCard(
-                balance = balance,
-                onBalanceChange = onBalanceChange
-            )
-        }
-
-        item {
-            AutomationCard()
-        }
-
-        item {
-            val deviceKey = remember(state.activeAudioDevice) {
-                viewModel.currentDeviceKey()
+        item(key = "balance") {
+            BouncyPopIn(delayMillis = 90) {
+                BalanceCard(
+                    balance = balance,
+                    onBalanceChange = onBalanceChange
+                )
             }
-            DeviceSceneCard(
-                currentDeviceName = state.activeAudioDevice.name,
-                currentDeviceKey = deviceKey,
-                scenes = scenes,
-                deviceScenes = deviceScenes,
-                onAssign = { viewModel.assignDeviceScene(it) },
-                onClear = { viewModel.clearDeviceScene(it) }
-            )
+        }
+
+        item(key = "automation") {
+            BouncyPopIn(delayMillis = 120) {
+                AutomationCard()
+            }
+        }
+
+        item(key = "device_scene") {
+            BouncyPopIn(delayMillis = 150) {
+                val deviceKey = remember(state.activeAudioDevice) {
+                    viewModel.currentDeviceKey()
+                }
+                DeviceSceneCard(
+                    currentDeviceName = state.activeAudioDevice.name,
+                    currentDeviceKey = deviceKey,
+                    scenes = scenes,
+                    deviceScenes = deviceScenes,
+                    onAssign = { viewModel.assignDeviceScene(it) },
+                    onClear = { viewModel.clearDeviceScene(it) }
+                )
+            }
         }
 
         item {

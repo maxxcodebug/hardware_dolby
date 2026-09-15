@@ -6,6 +6,7 @@
 package org.lunaris.dolby.ui.screens
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -232,97 +233,127 @@ private fun ModernDolbySettingsContent(
     onResetScenesClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        state = listState,
+        modifier = modifier
+            .fillMaxSize()
+            .verticalBouncyEdge(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        item {
-            DolbyMainCard(
-                enabled = state.settings.enabled,
-                onEnabledChange = { viewModel.setDolbyEnabled(it) }
-            )
-        }
-
-        item {
-            ActiveAudioDeviceCard(device = state.activeAudioDevice)
-        }
-
-        item {
-            NotificationListenerPermissionCard()
-        }
-
-        item {
-            AnimatedVisibility(
-                visible = state.settings.enabled,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
-                ModernProfileSelector(
-                    currentProfile = state.settings.currentProfile,
-                    onProfileChange = { viewModel.setProfile(it) }
+        item(key = "main_card") {
+            BouncyPopIn(delayMillis = 0) {
+                DolbyMainCard(
+                    enabled = state.settings.enabled,
+                    onEnabledChange = { viewModel.setDolbyEnabled(it) }
                 )
             }
         }
 
-        item {
+        item(key = "device_card") {
+            BouncyPopIn(delayMillis = 30) {
+                ActiveAudioDeviceCard(device = state.activeAudioDevice)
+            }
+        }
+
+        item(key = "notif_card") {
+            BouncyPopIn(delayMillis = 60) {
+                NotificationListenerPermissionCard()
+            }
+        }
+
+        item(key = "profile") {
             AnimatedVisibility(
-                visible = state.settings.enabled && state.settings.currentProfile != 0,
-                enter = fadeIn() + expandVertically(),
+                visible = state.settings.enabled,
+                enter = fadeIn() + expandVertically(
+                    animationSpec = BouncySpecs.enterSize
+                ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                ModernSettingsCard(
-                    title = stringResource(R.string.dolby_ieq),
-                    icon = Icons.Default.GraphicEq
-                ) {
-                    ModernIeqSelector(
-                        currentPreset = state.profileSettings.ieqPreset,
-                        onPresetChange = { viewModel.setIeqPreset(it) }
+                BouncyPopIn(delayMillis = 0) {
+                    ModernProfileSelector(
+                        currentProfile = state.settings.currentProfile,
+                        onProfileChange = { viewModel.setProfile(it) }
                     )
                 }
             }
         }
 
-        item {
+        item(key = "ieq") {
             AnimatedVisibility(
-                visible = state.settings.enabled,
-                enter = fadeIn() + expandVertically(),
+                visible = state.settings.enabled && state.settings.currentProfile != 0,
+                enter = fadeIn() + expandVertically(
+                    animationSpec = BouncySpecs.enterSize
+                ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                SceneSection(
-                    scenes = scenes,
-                    onApply = onApplyScene,
-                    onSaveClick = onSaveSceneClick,
-                    onDeleteClick = onDeleteSceneClick,
-                    onResetClick = onResetScenesClick,
-                    hasCustomScenes = scenes.any { !it.isBuiltIn }
-                )
+                BouncyPopIn(delayMillis = 0) {
+                    ModernSettingsCard(
+                        title = stringResource(R.string.dolby_ieq),
+                        icon = Icons.Default.GraphicEq
+                    ) {
+                        ModernIeqSelector(
+                            currentPreset = state.profileSettings.ieqPreset,
+                            onPresetChange = { viewModel.setIeqPreset(it) }
+                        )
+                    }
+                }
             }
         }
 
-        item {
+        item(key = "scenes") {
             AnimatedVisibility(
                 visible = state.settings.enabled,
-                enter = fadeIn() + expandVertically(),
+                enter = fadeIn() + expandVertically(
+                    animationSpec = BouncySpecs.enterSize
+                ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                SleepTimerCard(
-                    state = sleepState,
-                    onStart = { viewModel.startSleepTimer(it) },
-                    onCancel = { viewModel.cancelSleepTimer() }
-                )
+                BouncyPopIn(delayMillis = 0) {
+                    SceneSection(
+                        scenes = scenes,
+                        onApply = onApplyScene,
+                        onSaveClick = onSaveSceneClick,
+                        onDeleteClick = onDeleteSceneClick,
+                        onResetClick = onResetScenesClick,
+                        hasCustomScenes = scenes.any { !it.isBuiltIn }
+                    )
+                }
             }
         }
 
-        item {
+        item(key = "sleep") {
             AnimatedVisibility(
                 visible = state.settings.enabled,
-                enter = fadeIn() + expandVertically(),
+                enter = fadeIn() + expandVertically(
+                    animationSpec = BouncySpecs.enterSize
+                ),
                 exit = fadeOut() + shrinkVertically()
             ) {
-                AppProfileSettingsCard(
-                    onManageClick = { navController.navigate("app_profiles") }
-                )
+                BouncyPopIn(delayMillis = 0) {
+                    SleepTimerCard(
+                        state = sleepState,
+                        onStart = { viewModel.startSleepTimer(it) },
+                        onCancel = { viewModel.cancelSleepTimer() }
+                    )
+                }
+            }
+        }
+
+        item(key = "app_profiles") {
+            AnimatedVisibility(
+                visible = state.settings.enabled,
+                enter = fadeIn() + expandVertically(
+                    animationSpec = BouncySpecs.enterSize
+                ),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                BouncyPopIn(delayMillis = 0) {
+                    AppProfileSettingsCard(
+                        onManageClick = { navController.navigate("app_profiles") }
+                    )
+                }
             }
         }
         

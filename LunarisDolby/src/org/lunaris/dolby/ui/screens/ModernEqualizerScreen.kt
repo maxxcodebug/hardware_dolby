@@ -243,28 +243,33 @@ private fun ModernEqualizerContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalBouncyEdge()
             .verticalScroll(scrollState)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            )
-        ) {
-            ModernPresetSelector(
-                presets = state.presets,
-                currentPreset = state.currentPreset,
-                onPresetSelected = { viewModel.setPreset(it) }
+        BouncyPopIn(delayMillis = 0) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                )
+            ) {
+                ModernPresetSelector(
+                    presets = state.presets,
+                    currentPreset = state.currentPreset,
+                    onPresetSelected = { viewModel.setPreset(it) }
+                )
+            }
+        }
+
+        BouncyPopIn(delayMillis = 30) {
+            BandModeSelector(
+                currentMode = state.bandMode,
+                onModeChange = { viewModel.setBandMode(it) }
             )
         }
-        
-        BandModeSelector(
-            currentMode = state.bandMode,
-            onModeChange = { viewModel.setBandMode(it) }
-        )
         
         if (!isBandModeCompatible && !isFlatPreset) {
             Card(
@@ -306,17 +311,18 @@ private fun ModernEqualizerContent(
             }
         }
         
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
-            )
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                EqualizerSectionHeader(
-                    icon = Icons.Default.Visibility,
-                    title = "Equalizer View",
+        BouncyPopIn(delayMillis = 60) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                )
+            ) {
+                Column(modifier = Modifier.padding(20.dp)) {
+                    EqualizerSectionHeader(
+                        icon = Icons.Default.Visibility,
+                        title = "Equalizer View",
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
                 
@@ -341,6 +347,7 @@ private fun ModernEqualizerContent(
                     )
                 }
             }
+        }
         }
 
         val viewTransitionSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
@@ -371,16 +378,18 @@ private fun ModernEqualizerContent(
             }
         }
 
-        BandTunerCard(
-            bandGains = state.bandGains,
-            bandMode = state.bandMode,
-            onGainChange = { index, gain ->
-                if (canEdit) {
-                    viewModel.setBandGain(index, gain)
-                }
-            },
-            enabled = canEdit
-        )
+        BouncyPopIn(delayMillis = 90) {
+            BandTunerCard(
+                bandGains = state.bandGains,
+                bandMode = state.bandMode,
+                onGainChange = { index, gain ->
+                    if (canEdit) {
+                        viewModel.setBandGain(index, gain)
+                    }
+                },
+                enabled = canEdit
+            )
+        }
 
         Spacer(modifier = Modifier.height(70.dp))
     }
@@ -901,6 +910,7 @@ private fun ViewModeTile(
 ) {
     val haptic = rememberHapticFeedback()
     val scope = rememberCoroutineScope()
+    val iconBounce = rememberBouncySelectedScale(isSelected)
     
     Surface(
         onClick = {
@@ -934,7 +944,12 @@ private fun ViewModeTile(
             horizontalArrangement = Arrangement.Start
         ) {
             Surface(
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .graphicsLayer {
+                        scaleX = iconBounce
+                        scaleY = iconBounce
+                    },
                 shape = if (isSelected)
                     MaterialTheme.shapes.extraLarge
                 else
@@ -1033,7 +1048,8 @@ private fun BandModeTile(
 ) {
     val haptic = rememberHapticFeedback()
     val scope = rememberCoroutineScope()
-    
+    val badgeBounce = rememberBouncySelectedScale(isSelected)
+
     Surface(
         onClick = {
             scope.launch {
@@ -1066,7 +1082,12 @@ private fun BandModeTile(
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier
+                    .size(32.dp)
+                    .graphicsLayer {
+                        scaleX = badgeBounce
+                        scaleY = badgeBounce
+                    },
                 shape = if (isSelected)
                     MaterialTheme.shapes.extraLarge
                 else
