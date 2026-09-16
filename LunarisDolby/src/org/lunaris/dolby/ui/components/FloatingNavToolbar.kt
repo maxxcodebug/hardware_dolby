@@ -45,7 +45,6 @@ fun FloatingNavToolbar(
     
     val isHomeSelected = currentRoute == "settings"
     val isVolumeSelected = currentRoute == "volume"
-    val isMaxxEqSelected = currentRoute == "maxxeq"
     val isEqualizerSelected = currentRoute == "equalizer"
     val isAdvancedSelected = currentRoute == "advanced"
 
@@ -163,28 +162,10 @@ fun FloatingNavToolbar(
                     onNavigate("volume")
                 }
             )
-
-            NavToolbarItem(
-                icon = Icons.Default.Equalizer,
-                label = "MaxxEQ",
-                selected = isMaxxEqSelected,
-                primaryColor = primaryColor,
-                onPrimaryColor = onPrimaryColor,
-                containerColor = Color.Transparent,
-                onContainerColor = onContainerColor,
-                onClick = {
-                    scope.launch {
-                        haptic.performHaptic(
-                            HapticFeedbackHelper.HapticIntensity.CLICK
-                        )
-                    }
-                    onNavigate("maxxeq")
-                }
-            )
+            }
         }
     }
 }
-    }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

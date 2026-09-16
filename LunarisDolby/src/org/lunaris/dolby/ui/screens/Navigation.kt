@@ -52,7 +52,7 @@ fun MainPagerScreen(
 ) {
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { 5 }
+        pageCount = { 4 }
     )
     val coroutineScope = rememberCoroutineScope()
 
@@ -61,8 +61,7 @@ fun MainPagerScreen(
         1 -> "equalizer"
         2 -> "advanced"
         3 -> "volume"
-        4 -> "maxxeq"
-        else -> "settings"
+    else -> "settings"
     }
 
     LaunchedEffect(pagerState.settledPage) {
@@ -90,7 +89,6 @@ fun MainPagerScreen(
                     navController = navController
                 )
                 3 -> VolumeControlScreen()
-                4 -> MaxxEqualizerScreen()
             }
         }
 
@@ -127,7 +125,6 @@ fun MainPagerScreen(
                             "equalizer" -> pagerState.animateScrollToPage(1)
                             "advanced" -> pagerState.animateScrollToPage(2)
                             "volume" -> pagerState.animateScrollToPage(3)
-                            "maxxeq" -> pagerState.animateScrollToPage(4)
                         }
                     }
                 }
