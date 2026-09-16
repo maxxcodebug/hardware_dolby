@@ -85,7 +85,7 @@ Verify the required vendor libraries, permissions, and SELinux rules.
 Page Style Integration
 The Page Style implementation is contained inside the Lunaris Dolby UI and provides persistent user customization.
 Relevant components include:
-LunarisDolby/
+MaxxDolby/
 └── src/org/lunaris/dolby/
     └── ui/
         ├── components/
