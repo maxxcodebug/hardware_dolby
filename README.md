@@ -26,7 +26,6 @@ Lunaris Dolby port and UI integration for **CMF Phone 1 (Tetris)**.
 
 # Changelog
  ### 15-09-2026
- - Add MaxxEqualizer.
  - Added Liquid glass effect.
  - Added Volume Control
    
