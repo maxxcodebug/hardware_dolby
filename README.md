@@ -1,4 +1,4 @@
-# Lunaris Dolby
+# MaxxDolby
 
 A modern Dolby audio framework with a Compose-based UI, device integration support, and customizable user experience.
 
@@ -16,15 +16,15 @@ A modern Dolby audio framework with a Compose-based UI, device integration suppo
 - Multiple UI layout and appearance options
 - Device-specific integration support
 
-## Lunaris Dolby UI
+## Maxxdolby UI
 
-Lunaris Dolby provides a modern Compose interface for controlling Dolby audio features.
+ MaxxDolby provides a modern Compose interface for controlling Dolby audio features.
 
 The UI is designed to be customizable so users can choose the appearance and layout that fits their preference instead of being locked to a single presentation.
 
 ### Page Style
 
-Lunaris Dolby includes a customizable Page Style system.
+MaxxDolby includes a customizable Page Style system.
 
 Users can configure supported UI elements such as:
 
@@ -47,7 +47,7 @@ A reset option is also provided to restore the default appearance.
 
 ## Requirements
 
-Lunaris Dolby requires a compatible Android build and Dolby-supported audio stack.
+MaxxDolby requires a compatible Android build and Dolby-supported audio stack.
 
 The implementation is primarily intended for custom Android ROM/device trees where the required Dolby components can be integrated into the vendor and system build.
 
@@ -57,68 +57,110 @@ Add the Dolby product configuration to your device tree:
 
 ```makefile
 $(call inherit-product, hardware/dolby/dolby.mk)
-Make sure the Dolby effects are included in the device audio effects configuration.
-Dolby Media Codecs
-For Dolby media codecs, add the Dolby codec configuration to the appropriate vendor media codec configuration:
+```
+Sony Dolby
+==============
+
+Getting Started
+---------------
+For dolby media codecs to work add this line in your media codecs config (should be in vendor partition) :-
+
+```bash
 <Include href="media_codecs_dolby_audio.xml" />
-Your device must support the required Codec2 (C2) components for the media codec integration to work correctly.
-Device Manifest
-HIDL definitions should be provided through the appropriate framework/device configuration rather than unnecessarily overriding the complete device manifest from the device tree.
-If your device tree currently uses:
+```
+
+To build, add the dolby effects in your device's audio effects config then inherit the dolby config by adding this in your device's makefile :-
+
+```bash
+$(call inherit-product, hardware/dolby/dolby.mk)
+```
+
+Now, moving hidl definitions in manifest to device trees is completely absurd so stop overriding manifest in your device trees an example for such would be :-
+
+Changing these in BoardConfig makefile of your device tree:-
+
+```bash
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE :=
-change it to:
-DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE +=
-Likewise, if applicable, change:
+```
+And
+
+```bash
 DEVICE_MANIFEST_FILE :=
-to:
+```
+
+To:-
+
+```bash
+DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE +=
+```
+And
+
+```bash
 DEVICE_MANIFEST_FILE +=
-Using += allows the existing framework/device definitions to be extended without replacing the complete configuration.
-Device Integration
-A proper device integration should:
-Include the Dolby product configuration.
-Add the required Dolby effects to the audio effects configuration.
-Add the required Dolby media codec configuration.
-Ensure the device supports the required Codec2 components.
-Configure the required framework/vendor compatibility entries.
-Include the Lunaris Dolby UI package where required by the ROM/device tree.
-Verify the required vendor libraries, permissions, and SELinux rules.
-Page Style Integration
-The Page Style implementation is contained inside the Lunaris Dolby UI and provides persistent user customization.
-Relevant components include:
-MaxxDolby/
-└── src/org/lunaris/dolby/
-    └── ui/
-        ├── components/
-        │   ├── ModernComponents.kt
-        │   └── PageStylePrefs.kt
-        │
-        └── screens/
-            ├── ModernDolbySettingsScreen.kt
-            ├── Navigation.kt
-            └── PageStyleScreen.kt
-The Page Style preferences are separated from the main settings UI so additional customization options can be added without redesigning the complete Dolby screen.
-Credits
-Lunaris Dolby
-Ghost — Rewrite Dolby UI in Jetpack Compose and the Lunaris Dolby foundation.
-https://github.com/Ghosuto⁠�
-Adithya R — AOSPA Dolby Manager initial code.
-https://github.com/adithya2306⁠�
-Kenway — Base/Treble changes and EQ tuning.
-https://github.com/kenway214⁠�
-tranQuila — Per-device Dolby state memory.
-https://github.com/MrTopia⁠�
-Pablo Escobar — AutoEQ headphone correction profiles.
-https://github.com/pabloescobar-reborn⁠�
-swiitch-OFF-Lab — Base hardware Dolby tree.
-https://github.com/swiitch-OFF-Lab/hardware_dolby⁠�
-Porting & Development
-Samakshhhh — Lunaris Dolby porting and device integration work.
-https://github.com/samakshkambxj⁠�
-Anshuman X (maxxcodebug) — Lunaris Dolby port/customization work for CMF Phone 1 (Tetris), UI customization, Page Style implementation, and continued development.
-https://github.com/maxxcodebug⁠�
-License
-Please refer to the individual source files and their respective upstream projects for applicable licensing and copyright information.
-Respect the licenses and attribution requirements of all upstream projects when redistributing or modifying this software.
-Disclaimer
-Dolby, Dolby Atmos, and related trademarks are property of their respective owners.
-This project is an independent implementation/integration for custom Android ROMs and is not affiliated with or endorsed by Dolby Laboratories.
+```
+
+The only change done above is changing := symbol to += so that manifest can't be overriden from device tree in BoardConfig makefile.
+
+At the end an example commit to properly implement it in your device tree could be :-
+
+**1)** [**Enable Dolby Atmos**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/e2333c94444b2646810cca39926f2df6bb95443c)
+**or**
+[**Enable Dolby Atmos**](https://github.com/swiitchOFF-miatoll/device_xiaomi_sm6250-common/commit/cfb88813114c6b0b16860ca29c04319418fbec93)
+**+**
+[**Remove**](https://github.com/swiitchOFF-miatoll/device_xiaomi_sm6250-common/commit/52a24b45910ff7cb46405c9f45d0cbdbf4428330)
+**or**
+[**Remove**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/2e09b725a56d89f7db0b4c1dfe5575af7dada46c)
+
+**2)** [**Enable Dolby Spatial Audio**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/fb6e082743d651b4742232817142aed161758953) 
+**with** **>>** [**this is must**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/f43cac4b68a208fda517e8faf914234158da75fd) **<<**
+
+**or**
+[**Enable Dolby Spatial Audio**](https://github.com/swiitchOFF-miatoll/device_xiaomi_sm6250-common/commit/b976b1aed2bd4b744f6003f9d36da2f31420b8a2)
+
+**3)** [**Enable Dolby Vision**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/97e6c84e3e2390c7fa8acecc3cdedd70b5aed07d)
+**or**
+[**Enable Dolby Vision**](https://github.com/swiitchOFF-miatoll/device_xiaomi_sm6250-common/commit/361a3c11663257999e21cb02eee9530bfec16f33)
+**or**
+[**Disable Dolby Vision**](https://github.com/Spanish-or-Vanish/android_device_xiaomi_sm8350-common/commit/41411ab3e6caabe8a304b03d6badcd8bf2211adb)
+ 
+**Note: Flags are needed after** [**this**](https://github.com/swiitch-OFF-Lab/hardware_dolby/commit/a29e40ab583f40893552d917c6d4deddac125b01)
+
+**>** [**For OEM Dolby App**](https://github.com/swiitchOFF-miatoll/device_xiaomi_miatoll/commit/7799b7b654dde27862062d5b44d7e58407a0e94b) `TARGET_INCLUDES_OEM_App := true`
+
+**>** **For OSS Dolby App** [**Need this**](https://github.com/swiitch-OFF-Lab/packages_apps_DolbyUI/tree/a) **or** [**Need this**](https://github.com/swiitch-OFF-Lab/packages_apps_DolbyUI/tree/16.0) **and skip/ignore/don't use OEM Dolby App flag**
+
+**>** [**For Dolby Vision**](https://github.com/swiitchOFF-miatoll/device_xiaomi_miatoll/commit/5031c093bfeb5dcd86b45c114c12a4e626fcb48f) `TARGET_INCLUDES_DolbyVision := true`
+
+
+# Credits:
+
+ * [**HELLBOY017**](https://github.com/HELLBOY017)
+ 
+ * [**adithya2306**](https://github.com/adithya2306)
+ * [**johnmart19**](https://github.com/johnmart19)
+ * [**userariii**](https://github.com/userariii)
+ * [**saku-bruh**](https://github.com/saku-bruh)
+ * [**ahnet-69 · he/him**](https://github.com/ahnet-69)
+
+* [**Anshuman X**](https://github.com/maxxcodebug) — Lunaris Dolby port for CMF Phone 1 (Tetris), including volume controls and volume control UI. Parts of this work were also used as a base/reference for further Lunaris Dolby development.
+* [**Samakshhhh**](https://github.com/samakshkambxj) — Original Lunaris Dolby port for Nothing Phone (3a) Lite (Galaxian). Used and built upon Anshuman X's Dolby work, while contributing the new animations, visual effects, spatial audio UI, scenes, automation, and other new UI enhancements.
+* [**Ghost**](https://github.com/Ghosuto) — Rewrite Dolby in Compose (Lunaris Dolby).
+* [**Adithya R**](https://github.com/adithya2306) — AOSPA Dolby Manager (Initial Code).
+* [**Kenway**](https://github.com/kenway214) — Base & Treble Changes, EQ Tuning.
+* [**tranQuila**](https://github.com/MrTopia) — Per-device Dolby state memory.
+* [**Pablo Escobar**](https://github.com/pabloescobar-reborn) — AutoEQ headphone correction profiles.
+* [**swiitch-OFF-Lab**](https://github.com/swiitch-OFF-Lab) — Base Dolby tree ([hardware_dolby](https://github.com/swiitch-OFF-Lab/hardware_dolby)).
+
+## Maintainer
+
+**Anshuman X**
+* [Telegram](https://t.me/AnshumanAhirwar)
+* [GitHub](https://github.com/maxxcodebug)
+
+# Changelog
+
+### 15-09-2026
+* Added Liquid glass effect.
+* Added Volume Control.
+  
+ 
