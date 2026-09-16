@@ -5,7 +5,7 @@
      SPDX-License-Identifier: Apache-2.0
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.lunaris.dolby"
+    package="org.maxxcodebug.maxxdolby"
     android:sharedUserId="android.uid.system">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -44,7 +44,7 @@
             android:name=".service.SleepTimerReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="org.lunaris.dolby.ACTION_SLEEP_TIMER" />
+                <action android:name="org.maxxcodebug.maxxdolby.ACTION_SLEEP_TIMER" />
             </intent-filter>
         </receiver>
 
@@ -52,10 +52,10 @@
             android:name=".service.DolbyCommandReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="org.lunaris.dolby.action.TOGGLE" />
-                <action android:name="org.lunaris.dolby.action.SET_ENABLED" />
-                <action android:name="org.lunaris.dolby.action.SET_PROFILE" />
-                <action android:name="org.lunaris.dolby.action.APPLY_SCENE" />
+                <action android:name="org.maxxcodebug.maxxdolby.action.TOGGLE" />
+                <action android:name="org.maxxcodebug.maxxdolby.action.SET_ENABLED" />
+                <action android:name="org.maxxcodebug.maxxdolby.action.SET_PROFILE" />
+                <action android:name="org.maxxcodebug.maxxdolby.action.APPLY_SCENE" />
             </intent-filter>
         </receiver>
 
@@ -79,12 +79,12 @@
             <meta-data android:name="com.android.settings.category"
                        android:value="com.android.settings.category.ia.sound" />
             <meta-data android:name="com.android.settings.summary_uri"
-                       android:value="content://org.lunaris.dolby.summary/dolby" />
+                       android:value="content://org.maxxcodebug.maxxdolby.summary/dolby" />
         </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="org.lunaris.dolby.fileprovider"
+            android:authorities="org.maxxcodebug.maxxdolby.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -127,7 +127,7 @@
 
         <provider
             android:name=".provider.SummaryProvider"
-            android:authorities="org.lunaris.dolby.summary">
+            android:authorities="org.maxxcodebug.maxxdolby.summary">
         </provider>
 
         <service
